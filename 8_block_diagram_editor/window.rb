@@ -32,6 +32,10 @@ class Window < Gtk::Window
     button.signal_connect("clicked"){on_save_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
 
+    button = Gtk::Button.new(:label => "save as")
+    button.signal_connect("clicked"){on_save_as_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
     button = Gtk::Button.new(:label => "quit")
     button.signal_connect("clicked"){on_quit_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
@@ -61,9 +65,11 @@ class Window < Gtk::Window
 
     case dialog.run
     when Gtk::ResponseType::ACCEPT
-      puts "filename = #{dialog.filename}"
-      diagram=Bde::Parser.new.parse(dialog.filename)
+      @filename = dialog.filename
+      diagram=Bde::Parser.new.parse(@filename)
       @canvas.fsm.diagram=diagram
+      basename=File.basename(dialog.filename,'.sexp')
+      set_title diagram.name=basename
       @canvas.redraw
       dialog.destroy
     else
@@ -73,6 +79,17 @@ class Window < Gtk::Window
 
   def on_save_clicked button
     puts '"save" button was clicked'
+    if @filename
+      diagram=@canvas.fsm.diagram
+      sexp=diagram.to_sexp
+      File.open(@filename,'w'){|f| f.puts sexp}
+    else
+      on_save_as_clicked button
+    end
+  end
+
+  def on_save_as_clicked button
+    puts '"save as" button was clicked'
     dialog=Gtk::FileChooserDialog.new(
              :title => "choose",
              :parent => self,
@@ -90,9 +107,12 @@ class Window < Gtk::Window
     case dialog.run
     when Gtk::ResponseType::ACCEPT
       puts "filename = #{dialog.filename}"
-      #puts "uri = #{dialog.uri}"
-      str=@canvas.fsm.diagram.to_sexp
-      File.open(dialog.filename,'w'){|f| f.puts str}
+      @filename=dialog.filename
+      diagram=@canvas.fsm.diagram
+      sexp=diagram.to_sexp
+      File.open(@filename,'w'){|f| f.puts sexp}
+      basename=File.basename(@filename,'.sexp')
+      set_title diagram.name=basename
       dialog.destroy
     else
       dialog.destroy
