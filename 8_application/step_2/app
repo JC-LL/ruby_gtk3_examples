@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'gtk3'
+require_relative 'app.rb'
+
+Tuto::App.new.run
