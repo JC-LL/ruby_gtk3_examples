@@ -13,7 +13,7 @@ class Parser
     if sexp.first.is_a? String
       name=sexp.shift
     else
-      raise "expecting a string as Graph id"
+      puts "ERROR : in format, expecting a string as Graph id"
     end
     nodes,edges=[],[]
     while sexp.any?
@@ -24,8 +24,7 @@ class Parser
         edges << parse_edge(sexp.shift)
       end
     end
-    graph=Graph.new(name,nodes,edges)
-    return graph
+    Graph.new(name,nodes,edges)
   end
 
   def parse_node sexp
