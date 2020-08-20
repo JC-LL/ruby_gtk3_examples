@@ -1,6 +1,7 @@
 require_relative 'ast'
 
 module Bde
+
   class Fsm
 
     attr_accessor :state
@@ -107,7 +108,6 @@ module Bde
       when :resizing_block
         case event
         when Motion
-          pp @border
           resize_block event
         when Release
           next_state=:idle
@@ -133,36 +133,37 @@ module Bde
   			rect_x=@pointed.pos.x
   			dx=(rect_x-cursor.x)
   			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx
+  			@pointed.size.x+=dx if @pointed.size.x+dx > MIN_BLOCK.x
+
   		when :bottom_right_corner
-  			@pointed.size.x=cursor.x-@pointed.pos.x
-  			@pointed.size.y=cursor.y-@pointed.pos.y
+  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
+  			@pointed.size.y=cursor.y-@pointed.pos.y if cursor.y-@pointed.pos.y > MIN_BLOCK.y
   		when :top_left_corner
   			dy=(@pointed.pos.y-cursor.y)
   			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy
+  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
   			rect_x=@pointed.pos.x
   			dx=(rect_x-cursor.x)
   			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx
+  			@pointed.size.x+=dx if @pointed.size.x + dx > MIN_BLOCK.x
   		when :top_right_corner
-  			@pointed.size.x=cursor.x-@pointed.pos.x
+  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
   			dy=(@pointed.pos.y-cursor.y)
   			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy
+  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
   		when :top_side
-  			dy=(@pointed.y-cursor.y)
+  			dy=(@pointed.pos.y-cursor.y)
   			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy
+  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
   		when :bottom_side
-  			@pointed.size.y=cursor.y-@pointed.pos.y
+  			@pointed.size.y=cursor.y-@pointed.pos.y if cursor.y-@pointed.pos.y > MIN_BLOCK.y
   		when :right_side
-  			@pointed.size.x=cursor.x-@pointed.pos.x
+  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
   		when :left_side
   			rect_x=@pointed.pos.x
   			dx=(rect_x-cursor.x)
   			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx
+  			@pointed.size.x+=dx if @pointed.size.x + dx > MIN_BLOCK.x
   		end
     end
   end

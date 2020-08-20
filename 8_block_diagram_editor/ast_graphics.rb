@@ -1,11 +1,11 @@
 require_relative 'coord'
 require_relative 'ast'
-
+YELLOW = [0.89, 0.5,  0.0]
 module Bde
   class Block
 
     def draw cr
-      cr.set_source_rgb(0.6, 0.6, 0.6)
+      cr.set_source_rgb *YELLOW
       cr.set_line_width(2)
       cr.rectangle(pos.x,pos.y,size.x,size.y)
       #cr.fill

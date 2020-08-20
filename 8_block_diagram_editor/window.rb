@@ -24,8 +24,24 @@ class Window < Gtk::Window
     vbox   = Gtk::Box.new(:vertical,spacing=6)
     hbox.add vbox
 
+    button = Gtk::Button.new(label:"new")
+    button.signal_connect("clicked"){on_new_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
     button = Gtk::Button.new(label:"open")
     button.signal_connect("clicked"){on_open_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
+    button = Gtk::Button.new(label:"zoom+")
+    button.signal_connect("clicked"){on_zoom_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
+    button = Gtk::Button.new(label:"zoom-")
+    button.signal_connect("clicked"){on_unzoom_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
+    button = Gtk::Button.new(label:"fit")
+    button.signal_connect("clicked"){on_fit_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
 
     button = Gtk::Button.new(:label => "save")
@@ -40,6 +56,16 @@ class Window < Gtk::Window
     button.signal_connect("clicked"){on_quit_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
     show_all
+  end
+
+  def on_new_clicked button
+    if @filename
+      puts "warn : save before leaving ?"
+    end
+    @canvas.fsm=Bde::Fsm.new
+    @canvas.redraw
+    @filename=nil
+    set_title 'new'
   end
 
   def on_open_clicked button
@@ -75,6 +101,18 @@ class Window < Gtk::Window
     else
       dialog.destroy
     end
+  end
+
+  def on_zoom_clicked button
+    puts "zoom+"
+  end
+
+  def on_unzoom_clicked button
+    puts "zoom-"
+  end
+
+  def on_fit_clicked button
+    puts "fit"
   end
 
   def on_save_clicked button
