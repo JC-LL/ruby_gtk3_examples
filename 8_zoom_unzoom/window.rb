@@ -12,6 +12,10 @@ class Point
     @y*=scal
     self
   end
+
+  def -(other)
+    Point.new(x-other.x,y-other.y)
+  end
 end
 
 class Rectangle
@@ -69,10 +73,7 @@ class Canvas < Gtk::DrawingArea
                      :pointer_motion_hint_mask]
 
     signal_connect("draw") do |_,cr|
-      width=window.width
-      height=window.height
-      puts "canvas : #{width}x#{height}"
-      clear(cr)
+      zoom_fit()
       redraw()
     end
 
@@ -94,12 +95,53 @@ class Canvas < Gtk::DrawingArea
     cr.paint
   end
 
-  def zoom position,factor
+  def zoom_fit
+    puts "zoom fit"
+    if @model.elements.any?
+      @width,@height=window.width,window.height
+      p @width
+      p @height
+      p max_x=@model.elements.map{|e| e.x+e.w}.max
+      p min_x=@model.elements.map{|e| e.x}.min
+      p max_y=@model.elements.map{|e| e.y+e.h}.max
+      p min_y=@model.elements.map{|e| e.y}.min
+      p size_x=max_x-min_x
+      p size_y=max_y-min_y
+      ratios=[@width/size_x,@height/size_y]
+      factor=ratios.min
+      factor*=0.8
+      puts "fit factor = #{factor}"
+      zoom_center=Point.new(@width/2,@height/2)
+      zoom(zoom_center,factor)
+      
+      shift_vector=zoom_center-compute_model_center()
+      shift(shift_vector)
+    end
+  end
+
+  def compute_model_center
+    p max_x=@model.elements.map{|e| e.x+e.w}.max
+    p min_x=@model.elements.map{|e| e.x}.min
+    p max_y=@model.elements.map{|e| e.y+e.h}.max
+    p min_y=@model.elements.map{|e| e.y}.min
+    p size_x=max_x-min_x
+    p size_y=max_y-min_y
+    Point.new(min_x+size_x/2,min_y+size_y/2)
+  end
+
+  def zoom zoom_center,factor
     @model.elements.each do |rec|
-      rec.x=position.x+(rec.x-position.x)*factor
-      rec.y=position.y+(rec.y-position.y)*factor
+      rec.x=zoom_center.x+(rec.x-zoom_center.x)*factor
+      rec.y=zoom_center.y+(rec.y-zoom_center.y)*factor
       rec.w*=factor
       rec.h*=factor
+    end
+  end
+
+  def shift vector
+    @model.elements.each do |rec|
+      rec.x+=vector.x
+      rec.y+=vector.y
     end
   end
 
@@ -143,6 +185,10 @@ class App < Gtk::Window
     button.signal_connect("clicked"){on_unzoom_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
 
+    button = Gtk::Button.new(label:"zoom fit")
+    button.signal_connect("clicked"){on_zoom_fit_clicked(button)}
+    vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
+
     button = Gtk::Button.new(:label => "quit")
     button.signal_connect("clicked"){on_quit_clicked(button)}
     vbox.pack_start(button,:expand => false, :fill => false, :padding => 0)
@@ -169,6 +215,11 @@ class App < Gtk::Window
     zoom_factor=0.8
     puts "zoom-"
     @canvas.zoom zoom_position,zoom_factor
+    @canvas.redraw
+  end
+
+  def on_zoom_fit_clicked button
+    @canvas.zoom_fit
     @canvas.redraw
   end
 
