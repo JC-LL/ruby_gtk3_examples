@@ -4,6 +4,7 @@ require_relative 'canvas'
 require_relative 'parser'
 require_relative 'events'
 require_relative 'ast_serialization'
+
 module Bde
   class Window < Gtk::Window
 
@@ -15,10 +16,12 @@ module Bde
       set_window_position :center
       set_destroy_callback
 
+      init_mvc
+
       hbox = Gtk::Box.new(:horizontal, spacing=6)
       add hbox
-      @canvas = Canvas.new
-      hbox.pack_start(@canvas,:expand=>true,:fill=> true)
+
+      hbox.pack_start(@view,:expand=>true,:fill=> true)
       #...instead of :
       # hbox.add canvas
 
@@ -59,13 +62,24 @@ module Bde
       show_all
     end
 
+    def init_mvc
+      @model      = Bde::Diagram.new(nil,[])
+      @controler  = Bde::StateMachine.new
+      @view       = Bde::Canvas.new
+      @view.set_model      @model
+      @view.set_controler  @controler
+      @controler.set_model @model
+      @filename=nil
+    end
+
     def on_new_clicked button
       if @filename
         puts "warn : save before leaving ?"
       end
-      @canvas.fsm=Bde::StateMachine.new
-      @canvas.redraw
-      @filename=nil
+      @model = Bde::Diagram.new(nil,[])
+      @view.set_model      @model
+      @controler.set_model @model
+      @view.redraw
       set_title 'new'
     end
 
@@ -94,10 +108,10 @@ module Bde
       when Gtk::ResponseType::ACCEPT
         @filename = dialog.filename
         diagram=Bde::Parser.new.parse(@filename)
-        @canvas.fsm.diagram=diagram
+        @view.fsm.diagram=diagram
         basename=File.basename(dialog.filename,'.sexp')
         set_title diagram.name=basename
-        @canvas.redraw
+        @view.redraw
         dialog.destroy
       else
         dialog.destroy
@@ -105,30 +119,31 @@ module Bde
     end
 
     def on_zoom_clicked button
-      click_pos =Coord.new(0,0) # dummy
-      center_pos=Coord.new(@canvas.window.width/2,@canvas.window.height/2)
-      puts "zoom+ from #{center_pos.inspect}"
-      @canvas.fsm.update Bde::ZoomClick.new(click_pos,center_pos)
-      @canvas.redraw
+      zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
+      zoom_factor=1.2
+      puts "zoom+"
+      @model.zoom zoom_position,zoom_factor
+      @view.redraw
     end
 
     def on_unzoom_clicked button
-      click_pos =Coord.new(0,0) # dummy
-      center_pos=Coord.new(@canvas.window.width/2,@canvas.window.height/2)
-      puts "zoom- from #{center_pos.inspect}"
-      @canvas.fsm.update Bde::UnZoomClick.new(click_pos,center_pos)
-      @canvas.redraw
+      zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
+      zoom_factor=0.8
+      puts "zoom-"
+      @model.zoom zoom_position,zoom_factor
+      @view.redraw
     end
 
     def on_fit_clicked button
-      puts "fit"
+      @model.zoom_fit @view
+      @view.redraw
     end
 
     def on_save_clicked button
       puts '"save" button was clicked'
       if @filename
-        diagram=@canvas.fsm.diagram
-        sexp=diagram.to_sexp
+        model=@model
+        sexp=model.to_sexp
         File.open(@filename,'w'){|f| f.puts sexp}
       else
         on_save_as_clicked button
@@ -155,11 +170,11 @@ module Bde
       when Gtk::ResponseType::ACCEPT
         puts "filename = #{dialog.filename}"
         @filename=dialog.filename
-        diagram=@canvas.fsm.diagram
-        sexp=diagram.to_sexp
+        model=@model
+        sexp=model.to_sexp
         File.open(@filename,'w'){|f| f.puts sexp}
         basename=File.basename(@filename,'.sexp')
-        set_title diagram.name=basename
+        set_title model.name=basename
         dialog.destroy
       else
         dialog.destroy

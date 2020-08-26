@@ -1,31 +1,53 @@
-require_relative 'coord'
+require_relative 'vector'
 require_relative 'ast'
+
 YELLOW = [0.89, 0.5,  0.0]
+
 module Bde
 
   class Diagram
-    def apply_zoom factor,center
-      puts "applying zoom factor=#{factor} center=#{center}"
-      blocks.each{|block| block.apply_zoom(factor,center)}
-    end
 
     def draw cr
-      blocks.each{|grob| grob.draw(cr)}
+      blocks.each{|block| block.draw(cr)}
+    end
+
+    def zoom zoom_center,factor
+      blocks.each do |rec|
+        rec.pos=zoom_center+(rec.pos-zoom_center)*factor
+        rec.size=rec.size*factor
+      end
+    end
+
+    def shift vector
+      blocks.each do |rec|
+        rec.pos=rec.pos+vector
+      end
+    end
+
+    def zoom_fit view
+      puts "zoom fit"
+      if blocks.any?
+        width,height=view.window.width,view.window.height
+        max_x=blocks.map{|e| e.pos.x+e.size.x}.max
+        min_x=blocks.map{|e| e.pos.x}.min
+        max_y=blocks.map{|e| e.pos.y+e.size.y}.max
+        min_y=blocks.map{|e| e.pos.y}.min
+        size_x=max_x-min_x
+        size_y=max_y-min_y
+        ratios=[width/size_x,height/size_y]
+        factor=ratios.min
+        factor*=0.8
+        puts "fit factor = #{factor}"
+        zoom_center=Vector.new(width/2,height/2)
+        zoom(zoom_center,factor)
+        model_center=Vector.new(min_x+size_x/2,min_y+size_y/2)
+        shift_vector=zoom_center-model_center
+        shift(shift_vector)
+      end
     end
   end
 
   class Block
-
-    def apply_zoom factor,center
-      puts "before zoom (x#{factor}): #{pos.inspect} #{size.inspect}"
-      pos.x-=center.x
-      pos.y-=center.y
-      pos.x*=factor
-      pos.y*=factor
-      size.x*=factor
-      size.y*=factor
-      puts "after zoom : #{pos.inspect} #{size.inspect}"
-    end
 
     def draw cr
       cr.set_source_rgb *YELLOW
@@ -35,7 +57,6 @@ module Bde
       sx=size.x
       sy=size.y
       cr.rectangle(x,y,sx,sy)
-      #cr.fill
       cr.stroke
     end
 
@@ -76,8 +97,5 @@ module Bde
       nil
     end
 
-    def shift vector
-      @pos=@pos+vector
-    end
   end
 end

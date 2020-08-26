@@ -11,14 +11,17 @@ module Bde
 
     def initialize
       @zoom_factor=1
-      @shift=Coord.new(0,0)
+      @shift=Vector.new(0,0)
       @state=:idle
       @grobs=[]
-      @diagram=Diagram.new('?',@grobs)
+    end
+
+    def set_model model
+      @model=model
     end
 
     def update event
-      puts " # blocks= #{@diagram.blocks.size}"
+      puts " # blocks= #{@model.blocks.size}"
       puts "state : #{state}".center(40,'-')
 
       case state
@@ -27,7 +30,7 @@ module Bde
         @pointed=nil
         case event
         when Motion
-          if @pointed=@diagram.blocks.find{|grob| grob.mouse_over?(event)}
+          if @pointed=@model.blocks.find{|grob| grob.mouse_over?(event)}
             puts "mouse over #{@pointed.name}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
@@ -38,14 +41,8 @@ module Bde
         when Click
           next_state=:block_creation
           @init_click=event.pos
-          @diagram.blocks << @pointed=create_block(event.pos,event.pos)
+          @model.blocks << @pointed=create_block(event.pos,event.pos)
           @init_pos=event.pos #simplifies drawing when drawing from rigth->left + bottom->up.
-        when ZoomClick
-          @zoom_factor=1.2
-          @diagram.apply_zoom(@zoom_factor,event.center_pos)
-        when UnZoomClick
-          @zoom_factor=0.8
-          @diagram.apply_zoom(@zoom_factor,event.center_pos)
         end
 
       when :block_creation
@@ -63,7 +60,7 @@ module Bde
           @false_block=@pointed.size.x < MIN_BLOCK.x or @pointed.size.y < MIN_BLOCK.y
           if @false_block
             puts "block too small"
-            @diagram.blocks.pop
+            @model.blocks.pop
             @pointed=nil
           end
           next_state=:idle
@@ -72,7 +69,7 @@ module Bde
       when :fly_over
         case event
         when Motion
-          if @pointed=@diagram.blocks.find{|grob| grob.mouse_over?(event)}
+          if @pointed=@model.blocks.find{|block| block.mouse_over?(event)}
             puts "mouse over #{@pointed.name}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
@@ -90,7 +87,7 @@ module Bde
       when :fly_over_border
         case event
         when Motion
-          if @pointed=@grobs.find{|grob| grob.mouse_over?(event)}
+          if @pointed=@model.blocks.find{|block| block.mouse_over?(event)}
             puts "mouse over #{@pointed}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
@@ -106,9 +103,12 @@ module Bde
         end
 
       when :moving_block
+        puts "moving block state :"
         case event
         when Motion
-          @pointed.pos=event.pos+@shift
+          puts "motion event : #{@shift.inspect}"
+          #@pointed.pos=event.pos+@shift
+          @pointed.pos=event.pos-@shift
         when Release
           next_state=:idle
         end
