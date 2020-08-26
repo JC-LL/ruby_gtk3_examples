@@ -2,12 +2,39 @@ require_relative 'coord'
 require_relative 'ast'
 YELLOW = [0.89, 0.5,  0.0]
 module Bde
+
+  class Diagram
+    def apply_zoom factor,center
+      puts "applying zoom factor=#{factor} center=#{center}"
+      blocks.each{|block| block.apply_zoom(factor,center)}
+    end
+
+    def draw cr
+      blocks.each{|grob| grob.draw(cr)}
+    end
+  end
+
   class Block
+
+    def apply_zoom factor,center
+      puts "before zoom (x#{factor}): #{pos.inspect} #{size.inspect}"
+      pos.x-=center.x
+      pos.y-=center.y
+      pos.x*=factor
+      pos.y*=factor
+      size.x*=factor
+      size.y*=factor
+      puts "after zoom : #{pos.inspect} #{size.inspect}"
+    end
 
     def draw cr
       cr.set_source_rgb *YELLOW
       cr.set_line_width(2)
-      cr.rectangle(pos.x,pos.y,size.x,size.y)
+      x=pos.x
+      y=pos.y
+      sx=size.x
+      sy=size.y
+      cr.rectangle(x,y,sx,sy)
       #cr.fill
       cr.stroke
     end

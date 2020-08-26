@@ -2,7 +2,7 @@ require_relative 'ast'
 
 module Bde
 
-  class Fsm
+  class StateMachine
 
     attr_accessor :state
     attr_accessor :border
@@ -10,6 +10,8 @@ module Bde
     attr_accessor :diagram #model
 
     def initialize
+      @zoom_factor=1
+      @shift=Coord.new(0,0)
       @state=:idle
       @grobs=[]
       @diagram=Diagram.new('?',@grobs)
@@ -26,7 +28,7 @@ module Bde
         case event
         when Motion
           if @pointed=@diagram.blocks.find{|grob| grob.mouse_over?(event)}
-            puts "mouse over #{@pointed}"
+            puts "mouse over #{@pointed.name}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
               puts "mouse over BORDER #{@pointed} / #{@border}"
@@ -38,6 +40,12 @@ module Bde
           @init_click=event.pos
           @diagram.blocks << @pointed=create_block(event.pos,event.pos)
           @init_pos=event.pos #simplifies drawing when drawing from rigth->left + bottom->up.
+        when ZoomClick
+          @zoom_factor=1.2
+          @diagram.apply_zoom(@zoom_factor,event.center_pos)
+        when UnZoomClick
+          @zoom_factor=0.8
+          @diagram.apply_zoom(@zoom_factor,event.center_pos)
         end
 
       when :block_creation
@@ -65,7 +73,7 @@ module Bde
         case event
         when Motion
           if @pointed=@diagram.blocks.find{|grob| grob.mouse_over?(event)}
-            puts "mouse over #{@pointed}"
+            puts "mouse over #{@pointed.name}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
               puts "mouse over BORDER #{@pointed} / #{@border}"

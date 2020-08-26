@@ -1,16 +1,25 @@
-require_relative 'fsm'
 require_relative 'events'
+require_relative 'state_machine'
 require_relative 'ast_graphics'
 
 class Canvas < Gtk::DrawingArea
 
   attr_accessor :fsm
-
+  attr_accessor :zoom_factor
   def initialize
     super()
     set_size_request(800,100)
     create_callbacks
-    @fsm=Bde::Fsm.new
+    @fsm=Bde::StateMachine.new
+    @zoom_factor=1
+  end
+
+  def width
+    window.width
+  end
+
+  def height
+    window.height
   end
 
   def create_callbacks
@@ -22,6 +31,7 @@ class Canvas < Gtk::DrawingArea
                      :pointer_motion_hint_mask]
 
     signal_connect("draw") do |_,cr|
+      puts "canvas : #{width}x#{height}"
       clear(cr)
       redraw
     end
@@ -84,10 +94,8 @@ class Canvas < Gtk::DrawingArea
 
   def redraw
     cr = window.create_cairo_context
-    w = allocation.width
-    h = allocation.height
     clear cr
-    @fsm.diagram.blocks.each{|grob| grob.draw(cr)}
+    @fsm.diagram.draw(cr)
   end
 
   def change_cursor()
