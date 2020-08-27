@@ -16,7 +16,7 @@ module Bde
   class Block
     def to_sexp
       code=Code.new
-      code << "(block \"#{name}\""
+      code << "(block \"#{id}\""
       code.indent=2
       code << "(pos  #{pos.x} #{pos.y})"
       code << "(size #{size.x} #{size.y})"
@@ -29,7 +29,7 @@ module Bde
   class Port
     def to_sexp
       code=Code.new
-      code << "(port \"#{name}\""
+      code << "(port \"#{id}\""
       code.indent=2
       code << "(pos  #{pos.x} #{pos.y})"
       code << "(size #{size.x} #{size.y})"
@@ -38,4 +38,20 @@ module Bde
       code
     end
   end
+
+  class Wire
+    def to_sexp
+      code=Code.new
+      code << "(wire \"#{id}\""
+      code.indent=2
+      points.each do |point|
+        code << "(point #{point.x} #{point.y})"
+      end
+      code.indent=0
+      code << ")"
+      code
+    end
+  end
+
+
 end

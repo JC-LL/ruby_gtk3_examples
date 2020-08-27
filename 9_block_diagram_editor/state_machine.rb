@@ -21,7 +21,6 @@ module Bde
     end
 
     def update event
-      puts " # blocks= #{@model.blocks.size}"
       puts "state : #{state}".center(40,'-')
 
       case state
@@ -31,9 +30,9 @@ module Bde
         case event
         when Motion
           if @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
-            puts "mouse over #{@pointed.name}"
+            puts "mouse over #{@pointed.id}"
             next_state=:fly_over
-            if  @pointed.is_a?(Block) and @border=@pointed.mouse_on_border?(event)
+            if @pointed.is_a?(Block) and @border=@pointed.mouse_on_border?(event)
               puts "mouse over BORDER #{@pointed} / #{@border}"
               next_state=:fly_over_border
             end
@@ -45,9 +44,8 @@ module Bde
           @model.blocks << @pointed=create_block(event.pos,event.pos)
           @init_pos=event.pos #simplifies drawing when drawing from rigth->left + bottom->up.
         when KeyPressed
-          puts "fsm::pressed #{event} at #{@mouse_pos.to_sexp}"
           case event.symbolic_key
-          when "p"
+          when "p" #port creation
             @model.ports << create_port(@mouse_pos)
           end
         end
@@ -63,7 +61,6 @@ module Bde
             @pointed.size=@init_pos-event.pos
           end
         when Release
-          puts "current size = #{@pointed.size.inspect}"
           @false_block=@pointed.size.x < MIN_BLOCK.x or @pointed.size.y < MIN_BLOCK.y
           if @false_block
             puts "block too small"
@@ -75,9 +72,15 @@ module Bde
 
       when :fly_over
         case event
+        when KeyPressed # wire creation
+          case event.symbolic_key
+          when "Shift_L"
+            @model.wires << @wire=create_wire(@mouse_pos)
+            next_state=:wiring
+          end
         when Motion
           if @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
-            puts "mouse over #{@pointed.name}"
+            puts "mouse over #{@pointed.id}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
               puts "mouse over BORDER #{@pointed} / #{@border}"
@@ -86,6 +89,7 @@ module Bde
           else
             next_state=:idle
           end
+          @mouse_pos=event.pos
         when Click
           next_state=:moving_block
           @shift=event.pos-@pointed.pos
@@ -107,13 +111,17 @@ module Bde
           end
         when Click
           next_state=:resizing_block
+        when KeyPressed # wire creation
+          case event.symbolic_key
+          when "Shift_L"
+            @model.wires << @wire=create_wire(@mouse_pos)
+            next_state=:wiring
+          end
         end
 
       when :moving_block
-        puts "moving block state :"
         case event
         when Motion
-          puts "motion event : #{@shift.inspect}"
           @pointed.pos=event.pos-@shift
         when Release
           next_state=:idle
@@ -122,8 +130,21 @@ module Bde
       when :resizing_block
         case event
         when Motion
-          resize_block event
+          resize_grob event
         when Release
+          next_state=:idle
+        end
+
+      when :wiring
+        case event
+        when Motion
+          @wire.points.pop
+          @wire.points << event.pos
+
+        when KeyReleased, Release
+          puts "end of wiring"
+          pp @wire
+          @wire=nil
           next_state=:idle
         end
 
@@ -145,7 +166,12 @@ module Bde
       Bde::Port.new(name,pos,size)
     end
 
-    def resize_block event
+    def create_wire pos
+      name="wire #{@model.wires.size}"
+      Bde::Wire.new(name,pos,pos)
+    end
+
+    def resize_grob event
       cursor=event.pos
   		case border
   		when :bottom_left_corner

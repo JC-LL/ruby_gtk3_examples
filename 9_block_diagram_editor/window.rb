@@ -145,7 +145,6 @@ module Bde
     end
 
     def on_save_clicked button
-      puts '"save" button was clicked'
       if @filename
         sexp=@model.to_sexp
         File.open(@filename,'w'){|f| f.puts sexp}
@@ -155,7 +154,6 @@ module Bde
     end
 
     def on_save_as_clicked button
-      puts '"save as" button was clicked'
       dialog=Gtk::FileChooserDialog.new(
                :title => "choose",
                :parent => self,
@@ -185,7 +183,6 @@ module Bde
     end
 
     def on_quit_clicked button
-      puts "Closing application"
       Gtk.main_quit
     end
 

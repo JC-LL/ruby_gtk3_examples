@@ -121,4 +121,20 @@ module Bde
       cr.stroke
     end
   end
+
+  class Wire < Grob
+    def draw cr
+      cr.set_source_rgb *YELLOW
+      cr.set_line_width(2)
+      cr.move_to *points.first.to_a
+      points[1..-1].each do |point|
+        cr.line_to *point.to_a
+      end
+      cr.stroke
+    end
+
+    def mouse_over?(event)
+      false
+    end
+  end
 end

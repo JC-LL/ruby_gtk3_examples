@@ -37,6 +37,9 @@ class Vector
   end
 end
 
+class Point < Vector
+end
+
 ZERO=Vector.new(0,0)
 BORDER=Vector.new(10,10)
 MIN_BLOCK=Vector.new(25,25)

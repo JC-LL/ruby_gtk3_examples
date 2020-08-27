@@ -25,6 +25,8 @@ module Bde
           blocks << parse_block(sexp.shift)
         when :port
           ports << parse_port(sexp.shift)
+        when :wire
+          ports << parse_wire(sexp.shift)
         end
       end
       Diagram.new(name,blocks,ports)
@@ -52,6 +54,27 @@ module Bde
       pos=parse_pos(sexp.shift)
       size=parse_size(sexp.shift)
       Port.new(name,pos,size)
+    end
+
+    def parse_wire sexp
+      sexp.shift if sexp.first==:wire
+      if sexp.first.is_a? String
+        name=sexp.shift
+      else
+        raise "expecting a string as wire id"
+      end
+      points=[]
+      while sexp.any?
+        points << parse_point(sexp.shift)
+      end
+      Wire.new(name,*points)
+    end
+
+    def parse_point sexp
+      unless sexp.shift==:point
+        raise "expecting 'pos'"
+      end
+      Vector.new sexp.shift.to_f,sexp.shift.to_f
     end
 
     def parse_pos sexp

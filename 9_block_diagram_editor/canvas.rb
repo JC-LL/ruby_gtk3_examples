@@ -24,13 +24,10 @@ module Bde
                       ]
 
       signal_connect("draw") do |_,cr|
-        puts "canvas draw"
-        #@model.zoom_fit self
         redraw
       end
 
       signal_connect("size-allocate") do |_,cr|
-        puts "size allocate"
         @model.zoom_fit self
         redraw
       end
@@ -102,7 +99,7 @@ module Bde
       symbolic_key=Gdk::Keyval.to_name(keyval)
       @shift_l_pressed=(symbolic_key=="Shift_L") ? true : nil
       puts "key pressed : (#{keyval}) #{symbolic_key} @shift_l_pressed=#{@shift_l_pressed}"
-      bde_event=Bde::KeyPressed.new(symbolic_key)
+      bde_event=Bde::KeyPressed.new(symbolic_key,@shift_l_pressed)
       @controler.update(bde_event)
       redraw
     end
@@ -112,6 +109,9 @@ module Bde
       symbolic_key=Gdk::Keyval.to_name(keyval)
       @shift_l_released=(symbolic_key=="Shift_L") ? true : nil
       puts "key released : (#{keyval}) #{symbolic_key} @shift_l_released=#{@shift_l_released}"
+      bde_event=Bde::KeyReleased.new(symbolic_key,@shift_l_pressed)
+      @controler.update(bde_event)
+      redraw
     end
 
     def change_cursor()

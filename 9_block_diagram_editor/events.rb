@@ -44,10 +44,28 @@ module Bde
   end
 
   class KeyPressed < Event
-    attr_accessor :symbolic_key
-    def initialize symbolic_key
+    attr_accessor :symbolic_key,:shift_l
+    def initialize symbolic_key,shift_l=false
       super()
       @symbolic_key=symbolic_key
+      @shift_l=shift_l
+    end
+
+    def inspect
+      "keypressed key=#{symbolic_key} shift_l?=#{shift_l}"
+    end
+  end
+
+  class KeyReleased < Event
+    attr_accessor :symbolic_key,:shift_l
+    def initialize symbolic_key,shift_l=false
+      super()
+      @symbolic_key=symbolic_key
+      @shift_l=shift_l
+    end
+
+    def inspect
+      "keyreleased key=#{symbolic_key} shift_l?=#{shift_l}"
     end
   end
 
