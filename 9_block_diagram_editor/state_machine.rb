@@ -75,7 +75,7 @@ module Bde
         when KeyPressed # wire creation
           case event.symbolic_key
           when "Shift_L"
-            @model.wires << @wire=create_wire(@mouse_pos)
+            @model.wires << @wire=create_wire(@pointed,@mouse_pos)
             next_state=:wiring
           end
         when Motion
@@ -138,11 +138,11 @@ module Bde
       when :wiring
         case event
         when Motion
-          @wire.points.pop
-          @wire.points << event.pos
+          @mouse_pos=event.pos
 
         when KeyReleased, Release
           puts "end of wiring"
+          @wire.ports << @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
           pp @wire
           @wire=nil
           next_state=:idle
@@ -156,19 +156,25 @@ module Bde
 
     def create_block start,end_
       size=(end_-start).abs
-      name="block #{@model.blocks.size}"
-      Bde::Block.new(name,start,size)
+      id="B#{@model.blocks.size}"
+      Bde::Block.new(id,start,size)
     end
 
     def create_port pos
-      name="port #{@model.ports.size}"
+      id="p#{@model.ports.size}"
       size=Vector.new(30,20)
-      Bde::Port.new(name,pos,size)
+      Bde::Port.new(id,pos,size)
     end
 
-    def create_wire pos
-      name="wire #{@model.wires.size}"
-      Bde::Wire.new(name,pos,pos)
+    def create_wire pointed,pos
+      case pointed
+      when Port
+        source=pointed
+      when Block
+        raise "NIY"
+      end
+      id="w#{@model.wires.size}"
+      Bde::Wire.new(id,ports=[source])
     end
 
     def resize_grob event

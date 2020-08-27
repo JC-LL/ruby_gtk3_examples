@@ -2,6 +2,7 @@ require 'gtk3'
 
 require_relative 'canvas'
 require_relative 'parser'
+require_relative 'model_builder'
 require_relative 'events'
 require_relative 'ast_serialization'
 
@@ -112,12 +113,12 @@ module Bde
       case dialog.run
       when Gtk::ResponseType::ACCEPT
         @filename = dialog.filename
-        diagram=Bde::Parser.new.parse(@filename)
-        @model=diagram
+        ast=Bde::Parser.new.parse(@filename)
+        @model=Bde::ModelBuilder.new.build_from(ast)
         @view.set_model      @model
         @controler.set_model @model
         basename=File.basename(dialog.filename,'.sexp')
-        set_title diagram.name=basename
+        set_title @model.name=basename
         @view.redraw
         dialog.destroy
       else

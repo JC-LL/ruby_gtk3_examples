@@ -19,28 +19,55 @@ module Bde
   end
 
   class Block < Grob
+    attr_accessor :ports
+    def initialize id,pos,size
+      super(id,pos,size)
+      @ports=[]
+    end
   end
 
   class Port < Grob
   end
 
-  class Connection < Grob
-    attr_accessor :source,:sink
-    def initialize id,psource,psink,wire=nil
-      super(name,psource.pos,ZERO)
-      @source = psource
-      @sink   = psink
-      @wire   = wire
-    end
+  class Handle < Grob
   end
 
   class Wire < Grob
-    attr_accessor :name,:points
-    def initialize id,*points
-      super(name,points.first,ZERO)
-      @points=[]
-      @points << points
-      @points.flatten!
+    attr_accessor :id,:ports
+    def initialize id,ports
+      super(id,ports.first.pos,ZERO)
+      @id,@ports=id,ports
+    end
+
+    def points
+      ret=[]
+      source=ports.first
+      ret << source.pos+Vector.new(source.size.x,source.size.y/2)
+      ret << ports[1..-1].map{|port| port.pos+Vector.new(0,port.size.y/2)}
+      ret.flatten
     end
   end
+
+  class Source
+    attr_accessor :block,:port
+    def initialize block,port
+      @block,@port=block,port
+    end
+  end
+
+  class Sink
+    attr_accessor :block,:port
+    def initialize block,port
+      @block,@port=block,port
+    end
+  end
+
+  class Segment
+    attr_accessor :id,:source,:sink
+    def initialize id,source,sink
+      @id,@source,@sink=id,source,sink
+    end
+  end
+
+
 end

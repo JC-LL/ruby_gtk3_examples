@@ -44,12 +44,24 @@ module Bde
       code=Code.new
       code << "(wire \"#{id}\""
       code.indent=2
-      points.each do |point|
-        code << "(point #{point.x} #{point.y})"
+      ports.each do |port|
+        code << port.to_sexp
       end
       code.indent=0
       code << ")"
       code
+    end
+  end
+
+  class Source
+    def to_sexp
+      "(source #{block} #{port})"
+    end
+  end
+
+  class Sink
+    def to_sexp
+      "(sink #{block} #{port})"
     end
   end
 
