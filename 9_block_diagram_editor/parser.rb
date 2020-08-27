@@ -18,11 +18,16 @@ module Bde
       else
         raise "expecting a string as diagram id"
       end
-      blocks=[]
+      blocks,ports=[],[]
       while sexp.any?
-        blocks << parse_block(sexp.shift)
+        case sexp.first.first
+        when :block
+          blocks << parse_block(sexp.shift)
+        when :port
+          ports << parse_port(sexp.shift)
+        end
       end
-      Diagram.new(name,blocks)
+      Diagram.new(name,blocks,ports)
     end
 
     def parse_block sexp
@@ -35,6 +40,18 @@ module Bde
       pos=parse_pos(sexp.shift)
       size=parse_size(sexp.shift)
       Block.new(name,pos,size)
+    end
+
+    def parse_port sexp
+      sexp.shift if sexp.first==:port
+      if sexp.first.is_a? String
+        name=sexp.shift
+      else
+        raise "expecting a string as port id"
+      end
+      pos=parse_pos(sexp.shift)
+      size=parse_size(sexp.shift)
+      Port.new(name,pos,size)
     end
 
     def parse_pos sexp

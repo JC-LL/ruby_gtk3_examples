@@ -15,19 +15,27 @@ module Bde
 
     def create_callbacks
       add_events      [:leave_notify_mask,
+                       :button_release_mask,
                        :button_press_mask,
                        :scroll_mask,
-                       :button_release_mask,
+                       :key_press_mask,
                        :pointer_motion_mask,
-                       :pointer_motion_hint_mask]
+                       :pointer_motion_hint_mask,
+                      ]
 
       signal_connect("draw") do |_,cr|
+        puts "canvas draw"
+        #@model.zoom_fit self
+        redraw
+      end
+
+      signal_connect("size-allocate") do |_,cr|
+        puts "size allocate"
         @model.zoom_fit self
         redraw
       end
 
       signal_connect("button-press-event") do |widget, event|
-        puts "button press event"
         bde_event=Bde::Click.new(event)
         @pressed=event
 
@@ -36,13 +44,12 @@ module Bde
 
         @double_click=event.event_type==Gdk::EventType::BUTTON2_PRESS
         bde_event=Bde::DoubleClick.new(event) if @double_click
-        pp bde_event
         @controler.update(bde_event)
         redraw
   		end
 
       signal_connect("button-release-event") do |widget, event|
-        pp bde_event=Bde::Release.new(event)
+        bde_event=Bde::Release.new(event)
         @controler.update(bde_event)
         redraw
   		end
@@ -63,13 +70,6 @@ module Bde
         puts "popup"
       end
 
-      signal_connect 'key-press-event' do |widget,event|
-        puts "key press #{event}"
-      end
-
-      signal_connect("key-release-event") do |widget, event|
-        puts "key release #{event}"
-      end
     end
 
     def set_model model
@@ -90,10 +90,28 @@ module Bde
     end
 
     def redraw
-      puts "canvas : redraw"
-      cr = window.create_cairo_context
-      clear cr
-      @model.draw(cr)
+      if window
+        cr = window.create_cairo_context
+        clear cr
+        @model.draw(cr)
+      end
+    end
+
+    def on_key_press widget,event
+      keyval = event.keyval
+      symbolic_key=Gdk::Keyval.to_name(keyval)
+      @shift_l_pressed=(symbolic_key=="Shift_L") ? true : nil
+      puts "key pressed : (#{keyval}) #{symbolic_key} @shift_l_pressed=#{@shift_l_pressed}"
+      bde_event=Bde::KeyPressed.new(symbolic_key)
+      @controler.update(bde_event)
+      redraw
+    end
+
+    def on_key_release widget,event
+      keyval = event.keyval
+      symbolic_key=Gdk::Keyval.to_name(keyval)
+      @shift_l_released=(symbolic_key=="Shift_L") ? true : nil
+      puts "key released : (#{keyval}) #{symbolic_key} @shift_l_released=#{@shift_l_released}"
     end
 
     def change_cursor()

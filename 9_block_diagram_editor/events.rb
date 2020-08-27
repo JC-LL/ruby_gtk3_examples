@@ -43,4 +43,12 @@ module Bde
     end
   end
 
+  class KeyPressed < Event
+    attr_accessor :symbolic_key
+    def initialize symbolic_key
+      super()
+      @symbolic_key=symbolic_key
+    end
+  end
+
 end

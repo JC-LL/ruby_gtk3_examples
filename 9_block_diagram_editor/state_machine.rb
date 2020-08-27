@@ -13,7 +13,7 @@ module Bde
       @zoom_factor=1
       @shift=Vector.new(0,0)
       @state=:idle
-      @grobs=[]
+      @mouse_pos=Vector.new(0,0)
     end
 
     def set_model model
@@ -30,19 +30,26 @@ module Bde
         @pointed=nil
         case event
         when Motion
-          if @pointed=@model.blocks.find{|grob| grob.mouse_over?(event)}
+          if @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
             puts "mouse over #{@pointed.name}"
             next_state=:fly_over
-            if @border=@pointed.mouse_on_border?(event)
+            if  @pointed.is_a?(Block) and @border=@pointed.mouse_on_border?(event)
               puts "mouse over BORDER #{@pointed} / #{@border}"
               next_state=:fly_over_border
             end
           end
+          @mouse_pos=event.pos
         when Click
           next_state=:block_creation
           @init_click=event.pos
           @model.blocks << @pointed=create_block(event.pos,event.pos)
           @init_pos=event.pos #simplifies drawing when drawing from rigth->left + bottom->up.
+        when KeyPressed
+          puts "fsm::pressed #{event} at #{@mouse_pos.to_sexp}"
+          case event.symbolic_key
+          when "p"
+            @model.ports << create_port(@mouse_pos)
+          end
         end
 
       when :block_creation
@@ -69,7 +76,7 @@ module Bde
       when :fly_over
         case event
         when Motion
-          if @pointed=@model.blocks.find{|block| block.mouse_over?(event)}
+          if @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
             puts "mouse over #{@pointed.name}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
@@ -87,7 +94,7 @@ module Bde
       when :fly_over_border
         case event
         when Motion
-          if @pointed=@model.blocks.find{|block| block.mouse_over?(event)}
+          if @pointed=@model.grobs.find{|grob| grob.mouse_over?(event)}
             puts "mouse over #{@pointed}"
             next_state=:fly_over
             if @border=@pointed.mouse_on_border?(event)
@@ -107,7 +114,6 @@ module Bde
         case event
         when Motion
           puts "motion event : #{@shift.inspect}"
-          #@pointed.pos=event.pos+@shift
           @pointed.pos=event.pos-@shift
         when Release
           next_state=:idle
@@ -129,8 +135,14 @@ module Bde
 
     def create_block start,end_
       size=(end_-start).abs
-      name="block #{@grobs.size}"
+      name="block #{@model.blocks.size}"
       Bde::Block.new(name,start,size)
+    end
+
+    def create_port pos
+      name="port #{@model.ports.size}"
+      size=Vector.new(30,20)
+      Bde::Port.new(name,pos,size)
     end
 
     def resize_block event

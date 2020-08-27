@@ -5,12 +5,14 @@ require_relative 'parser'
 require_relative 'events'
 require_relative 'ast_serialization'
 
+$counter=0
+
 module Bde
   class Window < Gtk::Window
 
     def initialize args={} # I want to show it's possible to pass some args
       super()              # mandatory parenthesis ! otherwise : wrong arguments: Gtk::Window#initialize({})
-      set_title 'jcll_3'
+      set_title 'block diagram editor'
       set_default_size 900,600
       set_border_width 10
       set_window_position :center
@@ -24,6 +26,15 @@ module Bde
       hbox.pack_start(@view,:expand=>true,:fill=> true)
       #...instead of :
       # hbox.add canvas
+
+
+      # I cannot manage to "see" key press event, from DrawingArea itself.
+      # I understand I need to "capture" this event at the window level and
+      # propagate the action in the DrawingArea (aka "view" heure),
+      # where I think it should reside.
+      signal_connect("key-press-event"){|w,e| on_key_press(w,e)}
+
+      signal_connect("key-release-event"){|w,e| on_key_release(w,e)}
 
       vbox   = Gtk::Box.new(:vertical,spacing=6)
       hbox.add vbox
@@ -73,7 +84,7 @@ module Bde
     end
 
     def on_new_clicked button
-      if @filename
+      if @model.blocks.any?
         puts "warn : save before leaving ?"
       end
       @model = Bde::Diagram.new(nil,[])
@@ -84,7 +95,6 @@ module Bde
     end
 
     def on_open_clicked button
-      puts '"open" button was clicked'
       dialog=Gtk::FileChooserDialog.new(
                :title => "choose",
                :parent => self,
@@ -97,18 +107,15 @@ module Bde
       filter_sexp.add_pattern("*.sxp")
       dialog.add_filter(filter_sexp)
 
-      filter_rb = Gtk::FileFilter.new
-      filter_rb.name = "ruby filter"
-      filter_rb.add_pattern("*.rb")
-      dialog.add_filter(filter_rb)
-
       dialog.show_all
 
       case dialog.run
       when Gtk::ResponseType::ACCEPT
         @filename = dialog.filename
         diagram=Bde::Parser.new.parse(@filename)
-        @view.fsm.diagram=diagram
+        @model=diagram
+        @view.set_model      @model
+        @controler.set_model @model
         basename=File.basename(dialog.filename,'.sexp')
         set_title diagram.name=basename
         @view.redraw
@@ -121,7 +128,6 @@ module Bde
     def on_zoom_clicked button
       zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
       zoom_factor=1.2
-      puts "zoom+"
       @model.zoom zoom_position,zoom_factor
       @view.redraw
     end
@@ -129,7 +135,6 @@ module Bde
     def on_unzoom_clicked button
       zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
       zoom_factor=0.8
-      puts "zoom-"
       @model.zoom zoom_position,zoom_factor
       @view.redraw
     end
@@ -142,8 +147,7 @@ module Bde
     def on_save_clicked button
       puts '"save" button was clicked'
       if @filename
-        model=@model
-        sexp=model.to_sexp
+        sexp=@model.to_sexp
         File.open(@filename,'w'){|f| f.puts sexp}
       else
         on_save_as_clicked button
@@ -170,11 +174,10 @@ module Bde
       when Gtk::ResponseType::ACCEPT
         puts "filename = #{dialog.filename}"
         @filename=dialog.filename
-        model=@model
-        sexp=model.to_sexp
+        sexp=@model.to_sexp
         File.open(@filename,'w'){|f| f.puts sexp}
         basename=File.basename(@filename,'.sexp')
-        set_title model.name=basename
+        set_title @model.name=basename
         dialog.destroy
       else
         dialog.destroy
@@ -184,6 +187,14 @@ module Bde
     def on_quit_clicked button
       puts "Closing application"
       Gtk.main_quit
+    end
+
+    def on_key_press widget,event
+      @view.on_key_press(widget,event)
+    end
+
+    def on_key_release widget,event
+      @view.on_key_release(widget,event)
     end
 
     def set_destroy_callback

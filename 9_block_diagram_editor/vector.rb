@@ -4,8 +4,12 @@ class Vector
     @x,@y=x,y
   end
 
-  def inspect
+  def to_sexp
     "(vector #{x} #{y})"
+  end
+
+  def to_a
+    [x,y]
   end
 
   def *(scalar)

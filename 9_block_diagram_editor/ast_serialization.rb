@@ -6,7 +6,7 @@ module Bde
       code=Code.new
       code << "(diagram \"#{name}\""
       code.indent=2
-      blocks.each {|block| code << block.to_sexp}
+      grobs.each {|grob| code << grob.to_sexp}
       code.indent=0
       code << ")"
       code.finalize
@@ -17,6 +17,19 @@ module Bde
     def to_sexp
       code=Code.new
       code << "(block \"#{name}\""
+      code.indent=2
+      code << "(pos  #{pos.x} #{pos.y})"
+      code << "(size #{size.x} #{size.y})"
+      code.indent=0
+      code << ")"
+      code
+    end
+  end
+
+  class Port
+    def to_sexp
+      code=Code.new
+      code << "(port \"#{name}\""
       code.indent=2
       code << "(pos  #{pos.x} #{pos.y})"
       code << "(size #{size.x} #{size.y})"
