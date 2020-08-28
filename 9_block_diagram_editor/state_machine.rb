@@ -74,6 +74,10 @@ module Bde
         case event
         when KeyPressed # wire creation
           case event.symbolic_key
+          when "i" #port creation
+            @pointed.ports << create_block_port(nil,:left)
+          when "o" #port creation
+            @pointed.ports << create_block_port(nil,:right)
           when "Shift_L"
             @model.wires << @wire=create_wire(@pointed,@mouse_pos)
             next_state=:wiring
@@ -122,7 +126,7 @@ module Bde
       when :moving_block
         case event
         when Motion
-          @pointed.pos=event.pos-@shift
+          @pointed.move_to(event.pos-@shift)
         when Release
           next_state=:idle
         end
@@ -130,7 +134,7 @@ module Bde
       when :resizing_block
         case event
         when Motion
-          resize_grob event
+          resize_grob @pointed,@border,event
         when Release
           next_state=:idle
         end
@@ -166,6 +170,18 @@ module Bde
       Bde::Port.new(id,pos,size)
     end
 
+    def create_block_port pos=nil,side
+      side_pos=side==:left ? 0 : @pointed.size.x
+      id="bp#{@model.ports.size}"
+      size=Vector.new(20,20)
+      pp @pointed.ports.size
+      puts nbp_side=@pointed.ports.select{|p| p.side==side}.size
+      pos||=@pointed.pos+Vector.new(side_pos-size.x/2,(1+2*nbp_side)*size.y)
+      port=Bde::BlockPort.new(id,pos,size)
+      port.side=side
+      port
+    end
+
     def create_wire pointed,pos
       case pointed
       when Port
@@ -177,46 +193,37 @@ module Bde
       Bde::Wire.new(id,ports=[source])
     end
 
-    def resize_grob event
+    def resize_grob grob,border,event
       cursor=event.pos
-  		case border
-  		when :bottom_left_corner
-  			@pointed.size.y=cursor.y-@pointed.pos.y
-  			rect_x=@pointed.pos.x
-  			dx=(rect_x-cursor.x)
-  			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx if @pointed.size.x+dx > MIN_BLOCK.x
-
-  		when :bottom_right_corner
-  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
-  			@pointed.size.y=cursor.y-@pointed.pos.y if cursor.y-@pointed.pos.y > MIN_BLOCK.y
-  		when :top_left_corner
-  			dy=(@pointed.pos.y-cursor.y)
-  			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
-  			rect_x=@pointed.pos.x
-  			dx=(rect_x-cursor.x)
-  			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx if @pointed.size.x + dx > MIN_BLOCK.x
-  		when :top_right_corner
-  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
-  			dy=(@pointed.pos.y-cursor.y)
-  			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
-  		when :top_side
-  			dy=(@pointed.pos.y-cursor.y)
-  			@pointed.pos.y=cursor.y
-  			@pointed.size.y+=dy if @pointed.size.y + dy > MIN_BLOCK.y
-  		when :bottom_side
-  			@pointed.size.y=cursor.y-@pointed.pos.y if cursor.y-@pointed.pos.y > MIN_BLOCK.y
-  		when :right_side
-  			@pointed.size.x=cursor.x-@pointed.pos.x if cursor.x-@pointed.pos.x > MIN_BLOCK.x
-  		when :left_side
-  			rect_x=@pointed.pos.x
-  			dx=(rect_x-cursor.x)
-  			@pointed.pos.x=cursor.x
-  			@pointed.size.x+=dx if @pointed.size.x + dx > MIN_BLOCK.x
-  		end
+      v=cursor-grob.get_border(border)
+      case border
+      when :bottom_right_corner
+        shift=ZERO
+        grow =v
+      when :bottom_left_corner
+        shift=Vector.new(v.x,0)
+        grow =Vector.new(-v.x,v.y)
+      when :top_right_corner
+        shift=Vector.new(0,v.y)
+        grow =Vector.new(v.x,-v.y)
+    	when :top_left_corner
+        shift=v
+        grow =v*-1
+    	when :top_side
+        shift=Vector.new(0,v.y)
+        grow =Vector.new(0,-v.y)
+    	when :bottom_side
+        shift=ZERO
+        grow=Vector.new(0,v.y)
+      when :left_side
+        shift=Vector.new(v.x,0)
+        grow =Vector.new(-v.x,0)
+    	when :right_side
+        shift=ZERO
+        grow=Vector.new(v.x,0)
+      end
+      grob.shift(shift)
+      grob.grow(grow)
     end
   end
 end

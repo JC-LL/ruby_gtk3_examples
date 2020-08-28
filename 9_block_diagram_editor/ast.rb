@@ -29,6 +29,10 @@ module Bde
   class Port < Grob
   end
 
+  class BlockPort < Port
+    attr_accessor :side
+  end
+
   class Handle < Grob
   end
 

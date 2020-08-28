@@ -12,16 +12,11 @@ module Bde
     end
 
     def zoom zoom_center,factor
-      grobs.each do |e|
-        e.pos=zoom_center+(e.pos-zoom_center)*factor
-        e.size=e.size*factor
-      end
+      grobs.each{|e| e.zoom(zoom_center,factor)}
     end
 
     def shift vector
-      grobs.each do |e|
-        e.pos=e.pos+vector
-      end
+      grobs.each{|e| e.shift(vector)}
     end
 
     def zoom_fit view
@@ -83,6 +78,46 @@ module Bde
 			end
       nil
     end
+
+    def zoom zoom_center,factor
+      # strangly, "self." is needed here.
+      self.pos=zoom_center+(self.pos-zoom_center)*factor
+      self.size=size*factor
+    end
+
+    def shift vector
+      self.pos=self.pos+vector
+    end
+
+    def grow vector
+      self.size=self.size+vector
+    end
+
+    def move_to pos
+      self.pos=pos
+    end
+
+    def get_border border
+      case border
+      when :bottom_right_corner
+        return self.pos+self.size
+      when :bottom_left_corner
+        return self.pos+Vector.new(0,self.size.y)
+      when :top_right_corner
+        return self.pos+Vector.new(self.size.x,0)
+    	when :top_left_corner
+        return self.pos
+    	when :top_side
+        return self.pos #?
+    	when :bottom_side
+        return self.pos+Vector.new(0,self.size.y)
+      when :left_side
+        return self.pos
+    	when :right_side
+        return self.pos+Vector.new(self.size.x,0)
+      end
+    end
+
   end
 
   class Block < Grob
@@ -94,10 +129,32 @@ module Bde
       sx=size.x
       sy=size.y
       cr.rectangle(x,y,sx,sy)
+      ports.each{|port| port.draw(cr)}
       cr.stroke
     end
-  end
 
+    def zoom zoom_center,factor
+      super(zoom_center,factor)
+      ports.each{|port| port.zoom(zoom_center,factor)}
+    end
+
+    def shift vector
+      super(vector)
+      ports.each{|port| port.shift(vector)}
+    end
+
+    def grow vector
+      super(vector)
+      ports.each{|port| port.grow(vector)}
+    end
+
+    def move_to pos
+      shift=pos-self.pos
+      super(pos)
+      ports.each{|port| port.shift(shift)}
+    end
+
+  end
 
   class Port < Grob
     def draw cr
@@ -118,6 +175,19 @@ module Bde
         cr.line_to *point.to_a
       end
       cr.line_to *start.to_a
+      cr.stroke
+    end
+  end
+
+  class BlockPort < Port
+    def draw cr
+      cr.set_source_rgb *YELLOW
+      cr.set_line_width(2)
+      x=pos.x
+      y=pos.y
+      sx=size.x
+      sy=size.y
+      cr.rectangle(x,y,sx,sy)
       cr.stroke
     end
   end
