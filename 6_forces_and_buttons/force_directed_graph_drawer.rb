@@ -1,5 +1,5 @@
 require_relative 'graph'
-require_relative 'vector'
+require_relative 'my_vector'
 
 class ForceDirectedGraphDrawer
 
@@ -63,7 +63,7 @@ class ForceDirectedGraphDrawer
           total_kinetic_energy = 0
 
           for node in graph.nodes
-            net_force = Vector.new(0, 0)
+            net_force = MyVector.new(0, 0)
 
             for other in graph.nodes-[node]
               rep = coulomb_repulsion( node, other)

@@ -2,7 +2,7 @@ require 'gtk3'
 
 require_relative 'force_directed_graph_drawer'
 require_relative 'canvas'
-
+require_relative 'my_vector'
 class Window < Gtk::Window
 
   def initialize args={} # I want to show it's possible to pass some args
@@ -15,7 +15,7 @@ class Window < Gtk::Window
 
     @algorithm=ForceDirectedGraphDrawer.new
     @zoom_factor=1
-    @shift=Vector.new(0,0)
+    @shift=MyVector.new(0,0)
 
     hbox = Gtk::Box.new(:horizontal, spacing=6)
     add hbox
@@ -195,7 +195,7 @@ class Window < Gtk::Window
     min_y=@graph.nodes.min_by{|node| node.y}.y
     max_x=@graph.nodes.max_by{|node| node.x}.x
     max_y=@graph.nodes.max_by{|node| node.y}.y
-    [Vector.new(min_x,min_y),Vector.new(max_x,max_y)]
+    [MyVector.new(min_x,min_y),MyVector.new(max_x,max_y)]
   end
 
   def compute_zoom_and_shift
@@ -220,7 +220,7 @@ class Window < Gtk::Window
   def compute_shift enclosing_rect
     rect_center_x=(enclosing_rect.first.x+enclosing_rect.last.x)/2.0
     rect_center_y=(enclosing_rect.first.y+enclosing_rect.last.y)/2.0
-    @shift=Vector.new(-rect_center_x,-rect_center_y)
+    @shift=MyVector.new(-rect_center_x,-rect_center_y)
   end
 
   def on_save_clicked button

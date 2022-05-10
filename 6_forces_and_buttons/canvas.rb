@@ -16,7 +16,7 @@ class Canvas < Gtk::DrawingArea
     cr.paint
   end
 
-  def redraw graph=nil,zoom_factor=1,shift=Vector.new(0,0)
+  def redraw graph=nil,zoom_factor=1,shift=MyVector.new(0,0)
     @graph=graph
     cr = window.create_cairo_context
     cr.set_line_width(0.8)

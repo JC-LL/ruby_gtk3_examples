@@ -1,13 +1,13 @@
-require_relative 'vector'
+require_relative 'my_vector'
 require_relative 'parser'
 
 class Node
   attr_accessor :pos,:id,:radius,:velocity
   def initialize params
     @id=params.first
-    @pos=Vector.new params[1],params[2]
+    @pos=MyVector.new params[1],params[2]
     @radius=params[3] || 10
-    @velocity = (params.size>4) ? Vector.new(params[4],params[5]) :  Vector.new(0,0)
+    @velocity = (params.size>4) ? MyVector.new(params[4],params[5]) :  MyVector.new(0,0)
   end
 
   def x=(v)
@@ -93,7 +93,7 @@ class Graph
 
   def shuffle range=0..800
     nodes.each do |node|
-      node.pos=Vector.new *Graph.random_pos
+      node.pos=MyVector.new *Graph.random_pos
     end
   end
 
