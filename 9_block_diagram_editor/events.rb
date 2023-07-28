@@ -1,10 +1,10 @@
-require_relative 'vector'
+require_relative 'vect'
 
 module Bde
   class Event
     attr_accessor :pos
     def initialize gtk_event=nil
-      @pos=Vector.new(gtk_event.x,gtk_event.y) if gtk_event
+      @pos=Vect.new(gtk_event.x,gtk_event.y) if gtk_event
     end
 
     def inspect

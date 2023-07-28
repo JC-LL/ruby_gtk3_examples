@@ -1,7 +1,7 @@
 require 'sxp'
 
 require_relative 'ast'
-require_relative 'vector'
+require_relative 'vect'
 
 module Bde
   class Parser
@@ -123,21 +123,21 @@ module Bde
       unless sexp.shift==:point
         raise "expecting 'pos'"
       end
-      Vector.new sexp.shift.to_f,sexp.shift.to_f
+      Vect.new sexp.shift.to_f,sexp.shift.to_f
     end
 
     def parse_pos sexp
       unless sexp.shift==:pos
         raise "expecting 'pos'"
       end
-      Vector.new sexp.shift.to_f,sexp.shift.to_f
+      Vect.new sexp.shift.to_f,sexp.shift.to_f
     end
 
     def parse_size sexp
       unless sexp.shift==:size
         raise "expecting 'size'"
       end
-      Vector.new sexp.shift.to_f,sexp.shift.to_f
+      Vect.new sexp.shift.to_f,sexp.shift.to_f
     end
   end
 end

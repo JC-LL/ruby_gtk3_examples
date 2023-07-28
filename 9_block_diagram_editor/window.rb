@@ -127,14 +127,14 @@ module Bde
     end
 
     def on_zoom_clicked button
-      zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
+      zoom_position=Vect.new(@view.window.width/2,@view.window.height/2)
       zoom_factor=1.2
       @model.zoom zoom_position,zoom_factor
       @view.redraw
     end
 
     def on_unzoom_clicked button
-      zoom_position=Vector.new(@view.window.width/2,@view.window.height/2)
+      zoom_position=Vect.new(@view.window.width/2,@view.window.height/2)
       zoom_factor=0.8
       @model.zoom zoom_position,zoom_factor
       @view.redraw

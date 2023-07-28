@@ -1,4 +1,4 @@
-require_relative 'vector'
+require_relative 'vect'
 require_relative 'ast'
 
 YELLOW = [0.89, 0.5,  0.0]
@@ -15,8 +15,8 @@ module Bde
       grobs.each{|e| e.zoom(zoom_center,factor)}
     end
 
-    def shift vector
-      grobs.each{|e| e.shift(vector)}
+    def shift vect
+      grobs.each{|e| e.shift(vect)}
     end
 
     def zoom_fit view
@@ -31,11 +31,11 @@ module Bde
         ratios=[width/size_x,height/size_y]
         factor=ratios.min
         factor*=0.8
-        zoom_center=Vector.new(width/2,height/2)
+        zoom_center=Vect.new(width/2,height/2)
         zoom(zoom_center,factor)
-        model_center=Vector.new(min_x+size_x/2,min_y+size_y/2)
-        shift_vector=zoom_center-model_center
-        shift(shift_vector)
+        model_center=Vect.new(min_x+size_x/2,min_y+size_y/2)
+        shift_Vect=zoom_center-model_center
+        shift(shift_Vect)
       end
     end
   end
@@ -85,12 +85,12 @@ module Bde
       self.size=size*factor
     end
 
-    def shift vector
-      self.pos=self.pos+vector
+    def shift vect
+      self.pos=self.pos+vect
     end
 
-    def grow vector
-      self.size=self.size+vector
+    def grow vect
+      self.size=self.size+vect
     end
 
     def move_to pos
@@ -102,19 +102,19 @@ module Bde
       when :bottom_right_corner
         return self.pos+self.size
       when :bottom_left_corner
-        return self.pos+Vector.new(0,self.size.y)
+        return self.pos+Vect.new(0,self.size.y)
       when :top_right_corner
-        return self.pos+Vector.new(self.size.x,0)
+        return self.pos+Vect.new(self.size.x,0)
     	when :top_left_corner
         return self.pos
     	when :top_side
         return self.pos #?
     	when :bottom_side
-        return self.pos+Vector.new(0,self.size.y)
+        return self.pos+Vect.new(0,self.size.y)
       when :left_side
         return self.pos
     	when :right_side
-        return self.pos+Vector.new(self.size.x,0)
+        return self.pos+Vect.new(self.size.x,0)
       end
     end
 
@@ -138,14 +138,14 @@ module Bde
       ports.each{|port| port.zoom(zoom_center,factor)}
     end
 
-    def shift vector
-      super(vector)
-      ports.each{|port| port.shift(vector)}
+    def shift vect
+      super(vect)
+      ports.each{|port| port.shift(vect)}
     end
 
-    def grow vector
-      super(vector)
-      ports.each{|port| port.grow(vector)}
+    def grow vect
+      super(vect)
+      ports.each{|port| port.grow(vect)}
     end
 
     def move_to pos
@@ -165,11 +165,11 @@ module Bde
       sx=size.x
       sy=size.y
       points=[]
-      points << Vector.new(x,y)
-      points << Vector.new(x+sx*2/3,y)
-      points << Vector.new(x+sx    ,y+0.5*sy)
-      points << Vector.new(x+sx*2/3,y+sy)
-      points << Vector.new(x,y+sy)
+      points << Vect.new(x,y)
+      points << Vect.new(x+sx*2/3,y)
+      points << Vect.new(x+sx    ,y+0.5*sy)
+      points << Vect.new(x+sx*2/3,y+sy)
+      points << Vect.new(x,y+sy)
       cr.move_to *(start=points.shift).to_a
       points.each do |point|
         cr.line_to *point.to_a

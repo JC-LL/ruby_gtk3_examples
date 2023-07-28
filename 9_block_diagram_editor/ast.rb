@@ -46,8 +46,8 @@ module Bde
     def points
       ret=[]
       source=ports.first
-      ret << source.pos+Vector.new(source.size.x,source.size.y/2)
-      ret << ports[1..-1].map{|port| port.pos+Vector.new(0,port.size.y/2)}
+      ret << source.pos+Vect.new(source.size.x,source.size.y/2)
+      ret << ports[1..-1].map{|port| port.pos+Vect.new(0,port.size.y/2)}
       ret.flatten
     end
   end

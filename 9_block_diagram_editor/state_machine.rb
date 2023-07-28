@@ -11,9 +11,9 @@ module Bde
 
     def initialize
       @zoom_factor=1
-      @shift=Vector.new(0,0)
+      @shift=Vect.new(0,0)
       @state=:idle
-      @mouse_pos=Vector.new(0,0)
+      @mouse_pos=Vect.new(0,0)
     end
 
     def set_model model
@@ -166,17 +166,17 @@ module Bde
 
     def create_port pos
       id="p#{@model.ports.size}"
-      size=Vector.new(30,20)
+      size=Vect.new(30,20)
       Bde::Port.new(id,pos,size)
     end
 
     def create_block_port pos=nil,side
       side_pos=side==:left ? 0 : @pointed.size.x
       id="bp#{@model.ports.size}"
-      size=Vector.new(20,20)
+      size=Vect.new(20,20)
       pp @pointed.ports.size
       puts nbp_side=@pointed.ports.select{|p| p.side==side}.size
-      pos||=@pointed.pos+Vector.new(side_pos-size.x/2,(1+2*nbp_side)*size.y)
+      pos||=@pointed.pos+Vect.new(side_pos-size.x/2,(1+2*nbp_side)*size.y)
       port=Bde::BlockPort.new(id,pos,size)
       port.side=side
       port
@@ -201,26 +201,26 @@ module Bde
         shift=ZERO
         grow =v
       when :bottom_left_corner
-        shift=Vector.new(v.x,0)
-        grow =Vector.new(-v.x,v.y)
+        shift=Vect.new(v.x,0)
+        grow =Vect.new(-v.x,v.y)
       when :top_right_corner
-        shift=Vector.new(0,v.y)
-        grow =Vector.new(v.x,-v.y)
+        shift=Vect.new(0,v.y)
+        grow =Vect.new(v.x,-v.y)
     	when :top_left_corner
         shift=v
         grow =v*-1
     	when :top_side
-        shift=Vector.new(0,v.y)
-        grow =Vector.new(0,-v.y)
+        shift=Vect.new(0,v.y)
+        grow =Vect.new(0,-v.y)
     	when :bottom_side
         shift=ZERO
-        grow=Vector.new(0,v.y)
+        grow=Vect.new(0,v.y)
       when :left_side
-        shift=Vector.new(v.x,0)
-        grow =Vector.new(-v.x,0)
+        shift=Vect.new(v.x,0)
+        grow =Vect.new(-v.x,0)
     	when :right_side
         shift=ZERO
-        grow=Vector.new(v.x,0)
+        grow=Vect.new(v.x,0)
       end
       grob.shift(shift)
       grob.grow(grow)
