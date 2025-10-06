@@ -1,0 +1,17 @@
+{
+  "language": "VHDL",
+  "keywords": {
+    "reserved": {
+      "color": "#0000FF",
+      "words": ["entity", "architecture", "process", "begin", "end", "signal", "variable", "constant", "port", "generic", "type", "is", "of", "in", "out", "inout", "buffer", "package", "use", "all", "library", "if", "then", "else", "elsif", "case", "when", "loop", "while", "for", "next", "exit", "return", "wait", "until", "null"]
+    },
+    "types": {
+      "color": "#800080",
+      "words": ["std_logic", "std_logic_vector", "bit", "bit_vector", "integer", "natural", "positive", "boolean", "character", "string", "time", "real"]
+    },
+    "operators": {
+      "color": "#FF4500",
+      "words": ["and", "or", "not", "nand", "nor", "xor", "xnor", "=", "/=", "<", ">", "<=", ">=", "&"]
+    }
+  }
+}

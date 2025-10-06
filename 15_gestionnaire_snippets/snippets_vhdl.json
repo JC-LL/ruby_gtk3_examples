@@ -1,0 +1,8 @@
+{
+  "snippets": {
+    "D Flip-Flop": "entity d_flip_flop is\n  port (\n    clk : in std_logic;\n    d   : in std_logic;\n    q   : out std_logic\n  );\nend entity;\n\narchitecture rtl of d_flip_flop is\nbegin\n  process(clk)\n  begin\n    if rising_edge(clk) then\n      q <= d;\n    end if;\n  end process;\nend architecture;",
+    "Compteur 8 bits": "entity counter_8bit is\n  port (\n    clk    : in std_logic;\n    reset  : in std_logic;\n    count  : out std_logic_vector(7 downto 0)\n  );\nend entity;\n\narchitecture rtl of counter_8bit is\n  signal internal_count : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n  process(clk, reset)\n  begin\n    if reset = '1' then\n      internal_count <= (others => '0');\n    elsif rising_edge(clk) then\n      internal_count <= std_logic_vector(unsigned(internal_count) + 1);\n    end if;\n  end process;\n  \n  count <= internal_count;\nend architecture;",
+    "Multiplexeur 4:1": "entity mux_4to1 is\n  port (\n    sel : in std_logic_vector(1 downto 0);\n    a, b, c, d : in std_logic;\n    y : out std_logic\n  );\nend entity;\n\narchitecture rtl of mux_4to1 is\nbegin\n  with sel select\n    y <= a when \"00\",\n         b when \"01\",\n         c when \"10\",\n         d when \"11\",\n         '0' when others;\nend architecture;",
+    "mux.vhd": "entity mux_4to1 is\n  port (\n    sel : in std_logic_vector(1 downto 0);\n    a, b, c, d : in std_logic;\n    y : out std_logic\n  );\nend entity;\n\narchitecture rtl of mux_4to1 is\nbegin\n  with sel select\n    y <= a when \"00\",\n         b when \"01\",\n         c when \"10\",\n         d when \"11\",\n         '0' when others;\nend architecture;--"
+  }
+}
