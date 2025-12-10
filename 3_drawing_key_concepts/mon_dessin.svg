@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+    <circle id="cercle1" cx="100" cy="100" r="40" fill="red" stroke="black" stroke-width="2"/>
+    <rect id="rectangle1" x="200" y="50" width="80" height="60" fill="blue" stroke="black" stroke-width="2"/>
+    <polygon id="triangle1" points="300,200 350,250 250,250" fill="green" stroke="black" stroke-width="2"/>
+</svg>
