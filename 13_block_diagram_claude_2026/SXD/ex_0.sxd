@@ -1,0 +1,26 @@
+(diagram
+  (meta (name "Nouveau diagramme"))
+  (blocks
+    (block (id "b_1") (name "uart") (x 698) (y 227) (w 140) (h 80)
+      (ports
+        (port (id "p_6") (name "e1") (direction in) (type "any"))
+        (port (id "p_7") (name "f") (direction out) (type "any"))
+        (port (id "p_8") (name "e2") (direction in) (type "any"))
+      )
+    )
+    (block (id "dp_2") (name "rx") (x 157) (y 533) (w 140) (h 80) (diagram_port true)
+      (ports
+        (port (id "p_3") (name "in") (direction out) (type "any"))
+      )
+    )
+    (block (id "dp_4") (name "out") (x 1366) (y 310) (w 100) (h 40) (diagram_port true)
+      (ports
+        (port (id "p_5") (name "out") (direction in) (type "any"))
+      )
+    )
+  )
+  (connections
+    (connection (from "p_3") (to "p_6"))
+    (connection (from "p_7") (to "p_5"))
+  )
+)

@@ -1,0 +1,14 @@
+{
+  "types": [
+    { "name": "float",    "color": "#5599ff", "description": "Nombre flottant" },
+    { "name": "integer",  "color": "#88cc44", "description": "Entier" },
+    { "name": "boolean",  "color": "#ffaa33", "description": "Booléen" },
+    { "name": "string",   "color": "#cc88ff", "description": "Chaîne de caractères" },
+    { "name": "vector3",  "color": "#ff6688", "description": "Vecteur 3D" },
+    { "name": "matrix",   "color": "#44ccbb", "description": "Matrice" },
+    { "name": "signal",   "color": "#ffdd00", "description": "Signal analogique" },
+    { "name": "bus",      "color": "#ff8844", "description": "Bus de données" },
+    { "name": "event",    "color": "#ee44aa", "description": "Événement/trigger" },
+    { "name": "any",      "color": "#aaaaaa", "description": "Type quelconque" }
+  ]
+}

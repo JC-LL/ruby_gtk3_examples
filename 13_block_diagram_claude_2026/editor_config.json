@@ -1,0 +1,22 @@
+{
+  "_comment": "Configuration de l'éditeur de schémas-blocs (BDE)",
+
+  "editor": {
+    "font": "Monospace 11",
+    "theme": "oblivion",
+    "tab_width": 4,
+    "insert_spaces": false
+  },
+
+  "languages": [
+    "(aucun)",
+    "ruby",
+    "python",
+    "c",
+    "cpp",
+    "javascript",
+    "sh",
+    "lua",
+    "archipel"
+  ]
+}

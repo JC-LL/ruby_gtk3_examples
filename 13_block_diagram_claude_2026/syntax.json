@@ -1,0 +1,67 @@
+{
+  "rules": [
+    {
+      "name": "keyword",
+      "color": "#cc88ff",
+      "bold": true,
+      "patterns": ["actor", "else", "elsif", "end", "do", "def", "class", "module",
+                   "return", "while", "for", "each", "in", "and", "or", "not",
+                   "true", "false", "nil", "then", "unless", "until", "begin",
+                   "rescue", "ensure", "raise", "yield", "self", "super",
+                   "lambda", "proc", "new", "include", "extend", "require",
+                   "var", "let", "const", "function", "fn", "match", "case",
+                   "when", "import", "export", "from", "as", "type", "struct",
+                   "enum", "trait", "impl", "pub", "priv", "static", "mut"]
+    },
+    {
+      "name": "number",
+      "color": "#ffcc55",
+      "bold": false,
+      "regex": "\\b[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?\\b"
+    },
+    {
+      "name": "string_double",
+      "color": "#88dd88",
+      "bold": false,
+      "regex": "\"(?:[^\"\\\\]|\\\\.)*\""
+    },
+    {
+      "name": "string_single",
+      "color": "#88dd88",
+      "bold": false,
+      "regex": "'(?:[^'\\\\]|\\\\.)*'"
+    },
+    {
+      "name": "comment",
+      "color": "#778899",
+      "bold": false,
+      "italic": true,
+      "regex": "#[^\n]*"
+    },
+    {
+      "name": "comment_block",
+      "color": "#778899",
+      "bold": false,
+      "italic": true,
+      "regex": "/\\*[\\s\\S]*?\\*/"
+    },
+    {
+      "name": "operator",
+      "color": "#ff9966",
+      "bold": false,
+      "regex": "[+\\-*/<>=!&|^~%]+"
+    },
+    {
+      "name": "constant",
+      "color": "#55ccee",
+      "bold": false,
+      "regex": "\\b[A-Z][A-Z0-9_]{2,}\\b"
+    },
+    {
+      "name": "symbol",
+      "color": "#ffaa88",
+      "bold": false,
+      "regex": ":[a-zA-Z_][a-zA-Z0-9_]*"
+    }
+  ]
+}
