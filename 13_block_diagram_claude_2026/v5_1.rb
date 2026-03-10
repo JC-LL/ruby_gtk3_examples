@@ -1075,20 +1075,20 @@ class DiagramCanvas < Gtk::DrawingArea
 
   def on_key_press(event)
     case event.keyval
-    when Gdk::Keyval::GDK_KEY_Delete, Gdk::Keyval::GDK_KEY_BackSpace
+    when Gdk::Keyval::KEY_Delete, Gdk::Keyval::KEY_BackSpace
       if @selected
         @model.remove_block(@selected); @selected = nil
         notify_change; queue_draw
       end
-    when Gdk::Keyval::GDK_KEY_Escape
+    when Gdk::Keyval::KEY_Escape
       @wiring_port = nil; queue_draw
-    when Gdk::Keyval::GDK_KEY_plus, Gdk::Keyval::GDK_KEY_equal
+    when Gdk::Keyval::KEY_plus, Gdk::Keyval::KEY_equal
       self.zoom = @zoom * (1 + ZOOM_STEP)
       @on_zoom_changed&.call(@zoom)
-    when Gdk::Keyval::GDK_KEY_minus
+    when Gdk::Keyval::KEY_minus
       self.zoom = @zoom * (1 - ZOOM_STEP)
       @on_zoom_changed&.call(@zoom)
-    when Gdk::Keyval::GDK_KEY_0
+    when Gdk::Keyval::KEY_0
       @zoom = 1.0; @offset_x = 0.0; @offset_y = 0.0
       @on_zoom_changed&.call(@zoom); queue_draw
     end
